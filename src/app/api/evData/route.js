@@ -1,28 +1,40 @@
-// app/api/evData/route.js
-import fs from 'fs';
-import path from 'path';
 import csv from 'csv-parser';
 
-const filePath = path.resolve(process.cwd(), 'data-to-visualize/Electric_Vehicle_Population_Data.csv');
-
 export async function GET(req) {
-  const evData = [];
+  try {
+    // Fetch the CSV file from the public folder
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/data-to-visualize/Electric_Vehicle_Population_Data.csv`);
+    const csvText = await res.text();
 
-  return new Promise((resolve, reject) => {
-    fs.createReadStream(filePath)
-      .pipe(csv())
-      .on('data', (row) => evData.push(row))
-      .on('end', () => {
-        resolve(new Response(JSON.stringify(evData), {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }));
-      })
-      .on('error', (error) => {
-        console.error(error);
-        reject(new Response(JSON.stringify({ error: 'Failed to load data' }), { status: 500 }));
+    // Convert CSV text into JSON array
+    const evData = [];
+    const parseCSV = (csvText) => {
+      return new Promise((resolve) => {
+        const rows = csvText.split('\n');
+        const headers = rows[0].split(',');
+
+        for (let i = 1; i < rows.length; i++) {
+          const values = rows[i].split(',');
+          const obj = {};
+          headers.forEach((header, index) => {
+            obj[header] = values[index];
+          });
+          evData.push(obj);
+        }
+        resolve(evData);
       });
-  });
+    };
+
+    const data = await parseCSV(csvText);
+
+    return new Response(JSON.stringify(data), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  } catch (error) {
+    console.error(error);
+    return new Response(JSON.stringify({ error: 'Failed to load data' }), {
+      status: 500,
+    });
+  }
 }
