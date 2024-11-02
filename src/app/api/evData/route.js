@@ -1,40 +1,55 @@
 import csv from 'csv-parser';
+import fs from 'fs';
+import path from 'path';
 
-export async function GET(req) {
-  try {
-    // Fetch the CSV file from the public folder
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/data-to-visualize/Electric_Vehicle_Population_Data.csv`);
-    const csvText = await res.text();
+const parseCSV = (csvText) => {
+  const rows = csvText.split('\n');
+  const headers = rows[0].split(',');
+  const data = [];
 
-    // Convert CSV text into JSON array
-    const evData = [];
-    const parseCSV = (csvText) => {
-      return new Promise((resolve) => {
-        const rows = csvText.split('\n');
-        const headers = rows[0].split(',');
-
-        for (let i = 1; i < rows.length; i++) {
-          const values = rows[i].split(',');
-          const obj = {};
-          headers.forEach((header, index) => {
-            obj[header] = values[index];
-          });
-          evData.push(obj);
-        }
-        resolve(evData);
-      });
-    };
-
-    const data = await parseCSV(csvText);
-
-    return new Response(JSON.stringify(data), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
+  for (let i = 1; i < rows.length; i++) {
+    const values = rows[i].split(',');
+    const obj = {};
+    headers.forEach((header, index) => {
+      obj[header] = values[index];
     });
-  } catch (error) {
-    console.error(error);
-    return new Response(JSON.stringify({ error: 'Failed to load data' }), {
-      status: 500,
-    });
+    data.push(obj);
   }
+  
+  return data;
+};
+
+export async function getServerSideProps() {
+  try {
+    const filePath = path.join(process.cwd(), 'public', 'data-to-visualize', 'Electric_Vehicle_Population_Data.csv');
+    const csvText = fs.readFileSync(filePath, 'utf8');
+    const data = parseCSV(csvText);
+
+    return {
+      props: {
+        evData: data,
+      },
+    };
+  } catch (error) {
+    console.error('Failed to load data:', error);
+    return {
+      props: {
+        evData: [],
+        error: 'Failed to load data',
+      },
+    };
+  }
+}
+
+export default function EVPage({ evData, error }) {
+  if (error) {
+    return <p>Error loading data: {error}</p>;
+  }
+
+  return (
+    <div>
+      <h1>Electric Vehicle Population Data</h1>
+      <pre>{JSON.stringify(evData, null, 2)}</pre>
+    </div>
+  );
 }
