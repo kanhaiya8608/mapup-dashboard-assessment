@@ -1,7 +1,7 @@
-'use client';
-
-import { FaCar, FaBatteryFull, FaPlug } from 'react-icons/fa';
-import { Bar, Pie } from 'react-chartjs-2';
+"use client"
+import SummaryStatistics from './SummaryStatistics';
+import BarChart from './BarChart';
+import PieChart from './PieChart';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 
 // Register chart components
@@ -68,14 +68,12 @@ export default function Dashboard({ evData }) {
     }],
   };
 
-  // Calculate the average MSRP by Model Year
   const avgMSRPByYear = Object.entries(modelYears).map(([year]) => {
     const yearData = evData.filter(row => row['Model Year'] === year && row['Base MSRP'] > 0);
     const avgMSRP = yearData.reduce((sum, row) => sum + row['Base MSRP'], 0) / yearData.length || 0;
     return { year, avgMSRP };
   }).filter(item => item.avgMSRP > 0);
 
-  // Data for the new chart showing Average MSRP by Model Year
   const dataByYearPrice = {
     labels: avgMSRPByYear.map(item => item.year),
     datasets: [{
@@ -100,9 +98,9 @@ export default function Dashboard({ evData }) {
     }],
   };
 
-  // Define options for each chart with specific x-axis labels
-  const optionsByYear = {
+  const options = {
     responsive: true,
+    maintainAspectRatio: false, // Important for responsiveness
     plugins: {
       legend: {
         onClick: null, // Disable toggle on legend click
@@ -112,176 +110,70 @@ export default function Dashboard({ evData }) {
       x: { 
         title: { 
           display: true, 
-          text: 'Model Year',
+          text: 'Categories',
           font: { weight: 'bold' }
         }
       },
       y: { 
         title: { 
           display: true, 
-          text: 'Count of EVs',
+          text: 'Count',
           font: { weight: 'bold' }
         }
       },
     },
   };
-  
-  const optionsByMake = {
-    responsive: true,
-    plugins: {
-      legend: {
-        onClick: null, // Disable toggle on legend click
-      },
-    },
-    scales: {
-      x: { 
-        title: { 
-          display: true, 
-          text: 'Make',
-          font: { weight: 'bold' }
-        }
-      },
-      y: { 
-        title: { 
-          display: true, 
-          text: 'Count of EVs',
-          font: { weight: 'bold' }
-        }
-      },
-    },
-  };
-  
-  const optionsByCounty = {
-    responsive: true,
-    plugins: {
-      legend: {
-        onClick: null, // Disable toggle on legend click
-      },
-    },
-    scales: {
-      x: { 
-        title: { 
-          display: true, 
-          text: 'County',
-          font: { weight: 'bold' }
-        }
-      },
-      y: { 
-        title: { 
-          display: true, 
-          text: 'Count of EVs',
-          font: { weight: 'bold' }
-        }
-      },
-    },
-  };
-  
-  const optionsByYearPrice = {
-    responsive: true,
-    plugins: {
-      legend: {
-        onClick: null, // Disable toggle on legend click
-      },
-    },
-    scales: {
-      x: { 
-        title: { 
-          display: true, 
-          text: 'Model Year',
-          font: { weight: 'bold' }
-        }
-      },
-      y: { 
-        title: { 
-          display: true, 
-          text: 'Average Base MSRP',
-          font: { weight: 'bold' }
-        }
-      },
-    },
-  };
-  
-  const optionsByPrice = {
-    responsive: true,
-    plugins: {
-      legend: {
-        onClick: null, // Disable toggle on legend click
-      },
-    },
-    scales: {
-      x: { 
-        title: { 
-          display: true, 
-          text: 'Price Range',
-          font: { weight: 'bold' }
-        }
-      },
-      y: { 
-        title: { 
-          display: true, 
-          text: 'Count of EVs',
-          font: { weight: 'bold' }
-        }
-      },
-    },
-  };
-  
-  return (
-    <div className="container mx-auto p-6 bg-white ">
-      <h1 className="text-3xl font-bold mb-6 text-center">Electric Vehicle Dashboard</h1>
-      <div className="mb-6 text-center">
-        <h2 className="text-xl font-semibold">Summary Statistics</h2>
-        <div className="flex justify-around mb-4">
-          <div className="flex items-center">
-            <FaCar className="text-2xl mr-2" />
-            <p className="text-lg">Total EVs: <span className="font-bold">{totalEVs}</span></p>
-          </div>
-          <div className="flex items-center">
-            <FaBatteryFull className="text-2xl mr-2" />
-            <p className="text-lg">BEVs: <span className="font-bold">{byType['Battery Electric Vehicle (BEV)'] || 0}</span></p>
-          </div>
-          <div className="flex items-center">
-            <FaPlug className="text-2xl mr-2" />
-            <p className="text-lg">PHEVs: <span className="font-bold">{byType['Plug-in Hybrid Electric Vehicle (PHEV)'] || 0}</span></p>
-          </div>
-        </div>
-      </div>
 
+  return (
+    <div className="container mx-auto p-6 bg-white">
+      <h1 className="text-3xl font-bold mb-6 text-center">Electric Vehicle Dashboard</h1>
+
+      <SummaryStatistics totalEVs={totalEVs} byType={byType} />
+
+      {/* Render Bar Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         <div className="bg-gray-100 p-4 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-2">EVs by Model Year</h2>
-          <Bar data={dataByYear} options={optionsByYear} />
+          <div style={{ height: '350px' }}>
+            <BarChart data={dataByYear} options={options} />
+          </div>
         </div>
         <div className="bg-gray-100 p-4 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-2">EVs by Make</h2>
-          <Bar data={dataByMake} options={optionsByMake} />
+          <div style={{ height: '350px' }}>
+            <BarChart data={dataByMake} options={options} />
+          </div>
         </div>
         <div className="bg-gray-100 p-4 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-2">EVs by County</h2>
-          <Bar data={dataByCounty} options={optionsByCounty} />
+          <div style={{ height: '350px' }}>
+            <BarChart data={dataByCounty} options={options} />
+          </div>
         </div>
         <div className="bg-gray-100 p-4 rounded-lg shadow">
           <h2 className="text-lg font-semibold mb-2">Average Base MSRP by Model Year</h2>
-          <div style={{ maxHeight: '300px' }}>
-            <Bar data={dataByYearPrice} options={optionsByYearPrice} />
+          <div style={{ height: '350px' }}>
+            <BarChart data={dataByYearPrice} options={options} />
           </div>
         </div>
       </div>
 
+      {/* Render Pie Chart */}
       <div className="mb-6">
         <h2 className="text-lg font-semibold mb-2">EV Eligibility (CAFV)</h2>
         <div className="bg-gray-100 p-4 rounded-lg shadow flex justify-center">
           <div style={{ width: '250px', height: '250px' }}>
-            <Pie data={pieData} options={{ responsive: true }} />
+            <PieChart data={pieData} options={{ responsive: true }} />
           </div>
         </div>
       </div>
 
+      {/* Render Price Range Bar Chart */}
       <div>
         <h2 className="text-lg font-semibold mb-2">Count of EVs by Price Range</h2>
         <div className="bg-gray-100 p-4 rounded-lg shadow">
-          <div style={{ height: 'auto' }}>
-            <Bar data={dataByPrice} options={optionsByPrice} />
+          <div style={{ height: '350px' }}>
+            <BarChart data={dataByPrice} options={options} />
           </div>
         </div>
       </div>
