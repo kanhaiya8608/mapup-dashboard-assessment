@@ -7,7 +7,7 @@ The objective of this assessment is to analyze the provided Electric Vehicle (EV
 
 ## Link
 
-[Live Link](https://www.kaggle.com/datasets/willianoliveiragibin/electric-vehicle-population)
+[Live Link](https://mapup2.netlify.app/)
 
 ## Dataset
 
