@@ -43,7 +43,6 @@ __turbopack_export_namespace__(__TURBOPACK__imported__module__$5b$project$5d2f$s
 
 var { r: __turbopack_require__, f: __turbopack_module_context__, i: __turbopack_import__, s: __turbopack_esm__, v: __turbopack_export_value__, n: __turbopack_export_namespace__, c: __turbopack_cache__, M: __turbopack_modules__, l: __turbopack_load__, j: __turbopack_dynamic__, P: __turbopack_resolve_absolute_path__, U: __turbopack_relative_url__, R: __turbopack_resolve_module_id_path__, b: __turbopack_worker_blob_url__, g: global, __dirname, x: __turbopack_external_require__, y: __turbopack_external_import__, z: require } = __turbopack_context__;
 {
-// app/dashboard/page.js
 __turbopack_esm__({
     "default": (()=>DashboardPage)
 });
@@ -51,7 +50,6 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 var __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$dashboard$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__ = __turbopack_import__("[project]/src/components/dashboard.js [app-rsc] (ecmascript)");
 ;
 ;
-// Fetch data on the server side
 const fetchData = async ()=>{
     const res = await fetch('http://localhost:3000/api/evData', {
         cache: 'no-store'
@@ -60,12 +58,12 @@ const fetchData = async ()=>{
     return evData;
 };
 async function DashboardPage() {
-    const evData = await fetchData(); // Fetch data directly in the component
+    const evData = await fetchData();
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$rsc$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$components$2f$dashboard$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["default"], {
         evData: evData
     }, void 0, false, {
         fileName: "[project]/src/app/page.js",
-        lineNumber: 17,
+        lineNumber: 15,
         columnNumber: 5
     }, this);
 }
