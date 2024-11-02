@@ -4,35 +4,55 @@ import BarChart from './BarChart';
 import PieChart from './PieChart';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 
-// Register chart components
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 export default function Dashboard({ evData }) {
   const totalEVs = evData.length;
 
+  const getValue = (row, key) => row[key] !== undefined ? row[key] : null;
+
   const byType = evData.reduce((acc, row) => {
-    acc[row['Electric Vehicle Type']] = (acc[row['Electric Vehicle Type']] || 0) + 1;
+    const type = getValue(row, 'Electric Vehicle Type');
+    if (type) {
+      acc[type] = (acc[type] || 0) + 1;
+    }
     return acc;
   }, {});
 
   const modelYears = evData.reduce((acc, row) => {
-    acc[row['Model Year']] = (acc[row['Model Year']] || 0) + 1;
+    const year = getValue(row, 'Model Year');
+    if (year) {
+      acc[year] = (acc[year] || 0) + 1;
+    }
     return acc;
   }, {});
 
   const makes = evData.reduce((acc, row) => {
-    acc[row.Make] = (acc[row.Make] || 0) + 1;
+    const make = getValue(row, 'Make');
+    if (make) {
+      acc[make] = (acc[make] || 0) + 1;
+    }
     return acc;
   }, {});
 
   const counties = evData.reduce((acc, row) => {
-    acc[row.County] = (acc[row.County] || 0) + 1;
+    const county = getValue(row, 'County');
+    if (county) {
+      acc[county] = (acc[county] || 0) + 1;
+    }
     return acc;
   }, {});
 
-  const electricRanges = evData.filter(row => row['Electric Range'] > 0).map(row => row['Electric Range']);
-  const prices = evData.filter(row => row['Base MSRP'] > 0).map(row => row['Base MSRP']);
+  // Filter electric ranges and prices, handling undefined values
+  const electricRanges = evData
+    .filter(row => getValue(row, 'Electric Range') > 0)
+    .map(row => getValue(row, 'Electric Range'));
 
+  const prices = evData
+    .filter(row => getValue(row, 'Base MSRP') > 0)
+    .map(row => getValue(row, 'Base MSRP'));
+
+  // Prepare chart data
   const dataByYear = {
     labels: Object.keys(modelYears),
     datasets: [{
@@ -69,8 +89,8 @@ export default function Dashboard({ evData }) {
   };
 
   const avgMSRPByYear = Object.entries(modelYears).map(([year]) => {
-    const yearData = evData.filter(row => row['Model Year'] === year && row['Base MSRP'] > 0);
-    const avgMSRP = yearData.reduce((sum, row) => sum + row['Base MSRP'], 0) / yearData.length || 0;
+    const yearData = evData.filter(row => getValue(row, 'Model Year') === year && getValue(row, 'Base MSRP') > 0);
+    const avgMSRP = yearData.reduce((sum, row) => sum + getValue(row, 'Base MSRP'), 0) / yearData.length || 0;
     return { year, avgMSRP };
   }).filter(item => item.avgMSRP > 0);
 
@@ -100,10 +120,10 @@ export default function Dashboard({ evData }) {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false, // Important for responsiveness
+    maintainAspectRatio: false, 
     plugins: {
       legend: {
-        onClick: null, // Disable toggle on legend click
+        onClick: null, 
       },
     },
     scales: {
